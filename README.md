@@ -1,5 +1,7 @@
-# Build
+# Android Kernel
 
-This repository contains build configuration and entry workflows only.
+Device-specific Android kernels.
 
-Build steps and dependencies are fetched from pinned, read-only inputs and run on this repository's runners.
+Use only packages compatible with your device and system version. Keep a copy of the original boot images and a recovery method before installation.
+
+Author: zaomi
