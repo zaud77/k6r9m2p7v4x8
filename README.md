@@ -15,6 +15,6 @@
 | OnePlus Pad 3 Pro 金标 | [Run workflow](https://github.com/zaud77/k6r9m2p7v4x8/actions/workflows/fastbuild_6.12.58_hmbird_gold.yml) |
 | Ace 6 Ultra 金标 | [Run workflow](https://github.com/zaud77/k6r9m2p7v4x8/actions/workflows/fastbuild_6.12.58_mtk_hmbird_gold.yml) |
 
-`sukisu` 使用 SukiSU Ultra 官方源码，`bakasu` 使用 BakaSU 源码。NoMount 与 SUSFS 只能二选一。序列号留空时使用默认自用配置。
+`sukisu` 使用 SukiSU Ultra 官方源码，`bakasu` 使用 BakaSU 源码。NoMount 与 SUSFS 只能二选一。序列号留空时使用默认绑定序列号。
 
 本仓库仅保留配置与入口；构建步骤及依赖从固定的只读输入加载，全部构建在本仓库运行。
