@@ -1,0 +1,83 @@
+name: Check build workspace
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: true
+          persist-credentials: false
+      - name: Prepare pinned build inputs
+        uses: ./.github/actions/private-inputs
+        with:
+          repository: ${{ secrets.SOURCE_REPOSITORY }}
+          revision: ${{ secrets.SOURCE_REVISION }}
+          key: ${{ secrets.SOURCE_READ_KEY }}
+          submodules: 'true'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Build BusyBox 1.36.1 for Android flock compatibility tests
+        run: bash tools/build-test-busybox.sh
+      - name: Fetch JSON test dependency
+        run: bash tools/build-test-json.sh
+      - name: Install shell parser for package privacy checks
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq shfmt python3-cryptography
+      - run: NM_REQUIRE_C_TESTS=1 NM_REQUIRE_JAVA_TESTS=1 NM_REQUIRE_NODE_TESTS=1 NM_REQUIRE_SHELL_TESTS=1 python3 -m unittest discover -s tests -v
+      - run: python3 tools/verify-private-workflows.py --sources
+  appcloak:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Prepare pinned build inputs
+        uses: ./.github/actions/private-inputs
+        with:
+          repository: ${{ secrets.SOURCE_REPOSITORY }}
+          revision: ${{ secrets.SOURCE_REVISION }}
+          key: ${{ secrets.SOURCE_READ_KEY }}
+          submodules: 'false'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-37.0 build-tools;36.0.0'
+      - uses: gradle/actions/setup-gradle@v5
+        with:
+          gradle-version: '8.14.3'
+      - run: bash tools/build-appcloak.sh
+  userspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Prepare pinned build inputs
+        uses: ./.github/actions/private-inputs
+        with:
+          repository: ${{ secrets.SOURCE_REPOSITORY }}
+          revision: ${{ secrets.SOURCE_REVISION }}
+          key: ${{ secrets.SOURCE_READ_KEY }}
+          submodules: 'false'
+      - run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y linux-libc-dev-arm64-cross
+          clang --target=aarch64-linux-gnu --sysroot=/usr/aarch64-linux-gnu -ffreestanding -fsyntax-only nomount/userspace/src/nm.c
+          python3 -m unittest discover -s tests -p test_control_build.py -v

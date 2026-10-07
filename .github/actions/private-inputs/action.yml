@@ -1,0 +1,94 @@
+name: Prepare build inputs
+description: Restore pinned build inputs with read-only access
+inputs:
+  repository:
+    required: true
+    description: Input repository
+  revision:
+    required: true
+    description: Pinned input revision
+  key:
+    required: true
+    description: Read-only access key
+  submodules:
+    required: false
+    default: 'false'
+    description: Initialize pinned dependencies
+runs:
+  using: composite
+  steps:
+    - name: Validate access configuration
+      shell: bash
+      env:
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_REVISION: ${{ inputs.revision }}
+        INPUT_KEY: ${{ inputs.key }}
+      run: |
+        set -euo pipefail
+        python3 - <<'PY'
+        import os
+        import re
+        if os.environ['GITHUB_REF'] != 'refs/heads/main' or os.environ['GITHUB_EVENT_NAME'] not in ('push', 'workflow_dispatch'):
+            raise SystemExit('Build inputs are available only to trusted main-branch runs')
+        repo = os.environ['INPUT_REPOSITORY']
+        revision = os.environ['INPUT_REVISION']
+        if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repo) or not re.fullmatch(r'[a-f0-9]{40}', revision) or not os.environ['INPUT_KEY']:
+            raise SystemExit('Build input configuration is missing or invalid')
+        for value in (repo, *repo.split('/'), revision, 'https://github.com/' + repo, 'git@github.com:' + repo + '.git'):
+            print('::add-mask::' + value)
+        PY
+    - name: Fetch pinned inputs
+      uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        repository: ${{ inputs.repository }}
+        ref: ${{ inputs.revision }}
+        ssh-key: ${{ inputs.key }}
+        ssh-strict: true
+        persist-credentials: false
+        path: .source
+        fetch-depth: 1
+        show-progress: false
+        submodules: ${{ inputs.submodules }}
+    - name: Restore build workspace
+      shell: bash
+      env:
+        INPUT_REPOSITORY: ${{ inputs.repository }}
+        INPUT_REVISION: ${{ inputs.revision }}
+      run: |
+        set -euo pipefail
+        root="$(cd "$GITHUB_WORKSPACE" && pwd -P)"
+        source="$root/.source"
+        test -d "$root/.git" && test -d "$source/.git"
+        saved="$(mktemp -d "$RUNNER_TEMP/build-entry.XXXXXX")"
+        mv "$root/.git" "$saved/git"
+        mv "$source/.git" "$root/.git"
+        tar -C "$source" --exclude='./.git' --exclude='./.github' -cf - . | tar -C "$root" -xf -
+        git -C "$root" config --local core.worktree "$root"
+        git -C "$root" remote set-url origin "https://github.com/$GITHUB_REPOSITORY.git"
+        ln -s "$root/.git" "$source/.git"
+        python3 - <<'PY'
+        import json
+        import os
+        import re
+        from pathlib import Path
+        root = Path(os.environ['GITHUB_WORKSPACE'])
+        with open(os.environ['GITHUB_ENV'], 'a') as output:
+            output.write('NM_PRIVATE_REPOSITORY=' + os.environ['INPUT_REPOSITORY'] + '\n')
+            output.write('NM_PRIVATE_REVISION=' + os.environ['INPUT_REVISION'] + '\n')
+        path = root / 'ci/source-settings.json'
+        if path.is_file():
+            settings = json.loads(path.read_text())
+            for values in settings.values():
+                for name, value in values.items():
+                    if not re.fullmatch(r'[A-Z_]+', name) or not isinstance(value, str) or '\n' in value or '\r' in value:
+                        raise SystemExit('Invalid build input setting')
+                    print('::add-mask::' + value)
+                    if name.endswith('_REPO'):
+                        for part in value.split('/'):
+                            print('::add-mask::' + part)
+            workflow = os.environ['GITHUB_WORKFLOW_REF'].split('/.github/workflows/', 1)[1].split('@', 1)[0]
+            if workflow in settings:
+                with open(os.environ['GITHUB_ENV'], 'a') as output:
+                    for name, value in settings[workflow].items():
+                        output.write(name + '=' + value + '\n')
+        PY
