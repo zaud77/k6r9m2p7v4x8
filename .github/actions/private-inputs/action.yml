@@ -36,6 +36,8 @@ runs:
             raise SystemExit('Build input configuration is missing or invalid')
         for value in (repo, *repo.split('/'), revision, 'https://github.com/' + repo, 'git@github.com:' + repo + '.git'):
             print('::add-mask::' + value)
+        for length in range(7, 40):
+            print('::add-mask::' + revision[:length])
         PY
         if ! command -v ssh >/dev/null 2>&1; then
           if [ "$(id -u)" = 0 ]; then
