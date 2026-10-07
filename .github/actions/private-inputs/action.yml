@@ -37,6 +37,15 @@ runs:
         for value in (repo, *repo.split('/'), revision, 'https://github.com/' + repo, 'git@github.com:' + repo + '.git'):
             print('::add-mask::' + value)
         PY
+        if ! command -v ssh >/dev/null 2>&1; then
+          if [ "$(id -u)" = 0 ]; then
+            apt-get update -qq
+            apt-get install -y -qq openssh-client
+          else
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq openssh-client
+          fi
+        fi
     - name: Fetch pinned inputs
       uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
       with:
