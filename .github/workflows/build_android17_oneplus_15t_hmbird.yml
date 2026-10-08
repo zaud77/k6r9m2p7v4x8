@@ -1,0 +1,165 @@
+name: OnePlus 15T Android 17 HMBIRD
+run-name: OnePlus 15T Android 17 HMBIRD
+'on':
+  workflow_dispatch:
+    inputs:
+      build_request_id:
+        description: 机器人构建关联标识（手动构建保持默认）
+        required: false
+        type: string
+        default: manual
+      device_serial:
+        description: 绑定设备序列号（留空时使用默认自用序列号；写入内核并在启动后校验）
+        required: false
+        type: string
+        default: 3B15A800Y5D00000
+      ksu_type:
+        description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/KSU(原版)/无内置KSU,默认BakaSU)
+        required: true
+        type: choice
+        default: bakasu
+        options:
+        - bakasu
+        - sukisu
+        - ksunext
+        - kowsu
+        - ksu
+        - none
+      susfs_enable:
+        description: 是否开启SUSFS（与 NoMount 互斥，只能二选一）
+        required: true
+        type: boolean
+        default: 'false'
+      nomount_enable:
+        description: 是否集成 NoMount（与 SUSFS 互斥；启用前必须取消勾选 SUSFS）
+        required: true
+        type: boolean
+        default: 'false'
+      kpm_enable:
+        description: 是否开启kpm(使用KpatchNext独立实现kpm(支持任意KSU/面具环境); 不需要可保持默认关闭)
+        required: true
+        type: boolean
+        default: 'false'
+      lz4_enable:
+        description: 是否安装 lz4 1.10.0+zstd 1.5.7 补丁
+        required: true
+        type: boolean
+        default: 'true'
+      lz4kd_enable:
+        description: 是否安装 LZ4KD 补丁(若已开启lz4+zstd补丁则可不开启)
+        required: true
+        type: boolean
+        default: 'false'
+      unicode_enable:
+        description: 是否添加Unicode不可见字符码点绕过读取漏洞修复
+        required: true
+        type: boolean
+        default: 'true'
+      bbr_enable:
+        description: 是否启用bbr算法(优化上行数据,对手机日用无太大意义甚至可能负优化;false关闭,true仅加入算法,default启用算法并设为默认)
+        required: true
+        type: choice
+        default: 'false'
+        options:
+        - 'false'
+        - 'true'
+        - default
+      droidspaces_enable:
+        description: 是否启用Droidspaces容器支持(轻量化的完整Linux容器支持;false关闭,standard开启容器+ntsync支持,extend开启更多测试支持项)
+        required: true
+        type: choice
+        default: 'false'
+        options:
+        - 'false'
+        - standard
+        - extend
+      better_net:
+        description: 是否开启网络功能拓展配置(用于为ipset及需要iptables等高级网络功能内核支持的程序提供支持)
+        required: true
+        type: boolean
+        default: 'false'
+      adios_enable:
+        description: 是否启用ADIOS IO调度器支持(提升IO读写性能)
+        required: true
+        type: boolean
+        default: 'false'
+      rekernel_enable:
+        description: 是否启用Re-Kernel支持(与Freezer/NoActive等软件配合, 提升应用冻结能力)
+        required: true
+        type: boolean
+        default: 'false'
+      baseband_guard:
+        description: 是否开启内核级基带保护(阻止一切对非用户分区的写入，有效防止格机)
+        required: true
+        type: boolean
+        default: 'false'
+      ccache_update:
+        description: 更新ccache缓存(将本次编译生成的ccache缓存覆盖至仓库缓存，在更改编译配置、源码或需要刷新缓存时开启)
+        required: true
+        type: boolean
+        default: 'false'
+      ccache_debug:
+        description: 启用 Ccache 调试记录（仅保留在构建任务中，不上传调试工件）
+        required: true
+        type: boolean
+        default: 'false'
+      kernel_suffix:
+        description: 内核后缀(留空默认,开头别加连字符,勿加空格等影响指令运行的保留字符)
+        required: false
+        type: string
+        default: ''
+      build_date:
+        description: 自定义内核构建时间戳(uname -v 显示格式,如 Mon Dec 1 03:28:37 UTC 2025;留空则使用当前UTC时间)
+        required: false
+        type: string
+        default: ''
+      blacklist_modules:
+        description: 内核模块加载黑名单(逗号分隔;默认屏蔽oplus_secure_guard_new)
+        required: false
+        type: string
+        default: oplus_secure_guard_new
+jobs:
+  build:
+    name: Build Android 17 kernel
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    timeout-minutes: 180
+    steps:
+    - name: 检出本仓库构建资源
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - name: Prepare pinned build inputs
+      uses: ./.github/actions/private-inputs
+      with:
+        repository: ${{ secrets.SOURCE_REPOSITORY }}
+        revision: ${{ secrets.SOURCE_REVISION }}
+        key: ${{ secrets.SOURCE_READ_KEY }}
+        submodules: 'false'
+    - name: Run private build pipeline
+      id: pipeline
+      uses: ./ci/actions/build_android17_oneplus_15t_hmbird/build
+      with:
+        build_request_id: ${{ inputs.build_request_id }}
+        device_serial: ${{ inputs.device_serial }}
+        ksu_type: ${{ inputs.ksu_type }}
+        susfs_enable: ${{ inputs.susfs_enable }}
+        nomount_enable: ${{ inputs.nomount_enable }}
+        kpm_enable: ${{ inputs.kpm_enable }}
+        lz4_enable: ${{ inputs.lz4_enable }}
+        lz4kd_enable: ${{ inputs.lz4kd_enable }}
+        unicode_enable: ${{ inputs.unicode_enable }}
+        bbr_enable: ${{ inputs.bbr_enable }}
+        droidspaces_enable: ${{ inputs.droidspaces_enable }}
+        better_net: ${{ inputs.better_net }}
+        adios_enable: ${{ inputs.adios_enable }}
+        rekernel_enable: ${{ inputs.rekernel_enable }}
+        baseband_guard: ${{ inputs.baseband_guard }}
+        ccache_update: ${{ inputs.ccache_update }}
+        ccache_debug: ${{ inputs.ccache_debug }}
+        kernel_suffix: ${{ inputs.kernel_suffix }}
+        build_date: ${{ inputs.build_date }}
+        blacklist_modules: ${{ inputs.blacklist_modules }}
+        signing_key: ${{ secrets.NM_BINDING_PRIVATE_KEY }}
