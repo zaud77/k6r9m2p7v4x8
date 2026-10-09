@@ -51,7 +51,7 @@ run-name: 6.12.23 Find X9 金标风驰 · ${{ inputs.device_serial || '手动构
         type: boolean
         default: 'false'
       zram_writeback_enable:
-        description: 启用独立 zram 回写修复（测试；需同时启用 LZ4KD）
+        description: 启用独立 zram 回写修复（测试；兼容内置与原厂路线）
         required: true
         type: boolean
         default: 'false'
