@@ -46,7 +46,7 @@ run-name: OnePlus Ace 6T Android 17 HMBIRD
         type: boolean
         default: 'true'
       lz4kd_enable:
-        description: 是否安装 LZ4KD 补丁(若已开启lz4+zstd补丁则可不开启)
+        description: 内置 LZ4KD（须匹配 Android 17 原厂 zram 接口，源码就绪后启用）
         required: true
         type: boolean
         default: 'false'

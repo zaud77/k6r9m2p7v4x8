@@ -46,12 +46,12 @@ run-name: 6.12.38 一加15T 金标风驰 · ${{ inputs.device_serial || '手动�
         type: boolean
         default: 'true'
       lz4kd_enable:
-        description: 是否安装 LZ4KD 补丁(若已开启lz4+zstd补丁则可不开启)
+        description: 使用 LZ4KD 压缩，保留原厂 zram 和 HybridSwap
         required: true
         type: boolean
         default: 'false'
       zram_writeback_enable:
-        description: 启用独立 zram 回写修复（测试；兼容内置与原厂路线）
+        description: 启用原厂 HybridSwap 独立回写修复（测试）
         required: true
         type: boolean
         default: 'false'
