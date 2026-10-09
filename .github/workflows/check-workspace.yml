@@ -7,6 +7,26 @@ name: Check build workspace
 permissions:
   contents: read
 jobs:
+  zram-runtime:
+    if: github.ref == 'refs/heads/test/zram-writeback-20261009'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    container:
+      image: ghcr.io/ylarod/ddk-min:android16-6.12
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+    - name: Prepare pinned build inputs
+      uses: ./.github/actions/private-inputs
+      with:
+        repository: ${{ secrets.SOURCE_REPOSITORY }}
+        revision: ${{ secrets.ZRAM_TEST_SOURCE_REVISION }}
+        key: ${{ secrets.SOURCE_READ_KEY }}
+        submodules: 'false'
+    - name: Run private build pipeline
+      id: pipeline
+      uses: ./ci/actions/check-workspace/zram-runtime
   check:
     runs-on: ubuntu-latest
     steps:
