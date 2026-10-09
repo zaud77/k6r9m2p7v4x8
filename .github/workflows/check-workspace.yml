@@ -21,7 +21,8 @@ jobs:
       uses: ./.github/actions/private-inputs
       with:
         repository: ${{ secrets.SOURCE_REPOSITORY }}
-        revision: ${{ secrets.ZRAM_TEST_SOURCE_REVISION }}
+        revision: ${{ github.ref == 'refs/heads/test/zram-writeback-20261009' && secrets.ZRAM_TEST_SOURCE_REVISION || github.ref
+          != 'refs/heads/test/zram-writeback-20261009' && secrets.SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
     - name: Run private build pipeline
