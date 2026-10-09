@@ -50,6 +50,11 @@ run-name: 6.12.38 一加15T 金标风驰 · ${{ inputs.device_serial || '手动�
         required: true
         type: boolean
         default: 'false'
+      zram_writeback_enable:
+        description: 启用独立 zram 回写修复（测试；需同时启用 LZ4KD）
+        required: true
+        type: boolean
+        default: 'false'
       unicode_enable:
         description: 是否添加Unicode不可见字符码点绕过读取漏洞修复
         required: true
@@ -138,7 +143,8 @@ jobs:
       uses: ./.github/actions/private-inputs
       with:
         repository: ${{ secrets.SOURCE_REPOSITORY }}
-        revision: ${{ secrets.SOURCE_REVISION }}
+        revision: ${{ github.ref == 'refs/heads/test/zram-writeback-20261009' && secrets.ZRAM_TEST_SOURCE_REVISION || github.ref
+          != 'refs/heads/test/zram-writeback-20261009' && secrets.SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
     - name: Run private build pipeline
@@ -153,6 +159,7 @@ jobs:
         kpm_enable: ${{ inputs.kpm_enable }}
         lz4_enable: ${{ inputs.lz4_enable }}
         lz4kd_enable: ${{ inputs.lz4kd_enable }}
+        zram_writeback_enable: ${{ inputs.zram_writeback_enable }}
         unicode_enable: ${{ inputs.unicode_enable }}
         bbr_enable: ${{ inputs.bbr_enable }}
         droidspaces_enable: ${{ inputs.droidspaces_enable }}

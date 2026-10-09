@@ -28,8 +28,12 @@ runs:
         python3 - <<'PY'
         import os
         import re
-        if os.environ['GITHUB_REF'] != 'refs/heads/main' or os.environ['GITHUB_EVENT_NAME'] not in ('push', 'workflow_dispatch'):
-            raise SystemExit('Build inputs are available only to trusted main-branch runs')
+        ref = os.environ['GITHUB_REF']
+        event = os.environ['GITHUB_EVENT_NAME']
+        main_run = ref == 'refs/heads/main' and event in ('push', 'workflow_dispatch')
+        test_run = ref == 'refs/heads/test/zram-writeback-20261009' and event == 'workflow_dispatch'
+        if not (main_run or test_run):
+            raise SystemExit('Build inputs are available only to trusted build runs')
         repo = os.environ['INPUT_REPOSITORY']
         revision = os.environ['INPUT_REVISION']
         if not re.fullmatch(r'[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', repo) or not re.fullmatch(r'[a-f0-9]{40}', revision) or not os.environ['INPUT_KEY']:
