@@ -46,7 +46,7 @@ run-name: 6.12.23 Find X9 金标风驰 · ${{ inputs.device_serial || '手动构
         type: boolean
         default: 'true'
       lz4kd_enable:
-        description: 使用 LZ4KD 压缩，保留原厂 zram 和 HybridSwap
+        description: 内置 LZ4KD 可选算法，保留系统默认和原厂 HybridSwap
         required: true
         type: boolean
         default: 'false'

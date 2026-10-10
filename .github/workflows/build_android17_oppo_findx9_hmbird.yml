@@ -46,7 +46,7 @@ run-name: OPPO Find X9 Android 17 HMBIRD
         type: boolean
         default: 'true'
       lz4kd_enable:
-        description: 内置 LZ4KD（须匹配 Android 17 原厂 zram 接口，源码就绪后启用）
+        description: 内置 LZ4KD 可选算法，保留系统默认（须匹配 Android 17 原厂接口，源码就绪后启用）
         required: true
         type: boolean
         default: 'false'
