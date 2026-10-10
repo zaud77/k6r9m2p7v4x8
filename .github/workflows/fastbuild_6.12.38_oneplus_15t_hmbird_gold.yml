@@ -141,6 +141,7 @@ jobs:
         revision: ${{ secrets.SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
+        dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
     - name: Run private build pipeline
       id: pipeline
       uses: ./ci/actions/fastbuild_6.12.38_oneplus_15t_hmbird_gold/build
@@ -166,3 +167,8 @@ jobs:
         build_date: ${{ inputs.build_date }}
         blacklist_modules: ${{ inputs.blacklist_modules }}
         signing_key: ${{ secrets.NM_BINDING_PRIVATE_KEY }}
+    - name: Clear dependency access
+      if: ${{ always() }}
+      uses: ./.github/actions/dependency-access
+      with:
+        cleanup: 'true'
