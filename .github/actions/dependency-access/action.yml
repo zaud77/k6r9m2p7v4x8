@@ -1,0 +1,19 @@
+name: Dependency access
+description: Configure temporary read-only dependency access
+inputs:
+  keys:
+    description: Repository-specific SSH keys
+    required: false
+    default: ''
+  cleanup:
+    description: Remove temporary credentials
+    required: false
+    default: 'false'
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        DEPENDENCY_SSH_KEYS: ${{ inputs.keys }}
+        DEPENDENCY_ACCESS_CLEANUP: ${{ inputs.cleanup }}
+      run: python3 "$GITHUB_ACTION_PATH/configure.py"

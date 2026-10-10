@@ -10,6 +10,9 @@ inputs:
   key:
     required: true
     description: Read-only access key
+  dependency-keys:
+    required: true
+    description: Read-only dependency access
   submodules:
     required: false
     default: 'false'
@@ -64,6 +67,10 @@ runs:
         fetch-depth: 1
         show-progress: false
         submodules: ${{ inputs.submodules }}
+    - name: Configure dependency access
+      uses: ./.github/actions/dependency-access
+      with:
+        keys: ${{ inputs.dependency-keys }}
     - name: Restore build workspace
       shell: bash
       env:

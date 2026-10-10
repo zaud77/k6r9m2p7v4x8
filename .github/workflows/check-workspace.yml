@@ -43,9 +43,15 @@ jobs:
           != 'refs/heads/test/zram-writeback-20261009' && secrets.SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'true'
+        dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
     - name: Run private build pipeline
       id: pipeline
       uses: ./ci/actions/check-workspace/check
+    - name: Clear dependency access
+      if: ${{ always() }}
+      uses: ./.github/actions/dependency-access
+      with:
+        cleanup: 'true'
   appcloak:
     runs-on: ubuntu-latest
     steps:
@@ -60,9 +66,15 @@ jobs:
           != 'refs/heads/test/zram-writeback-20261009' && secrets.SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
+        dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
     - name: Run private build pipeline
       id: pipeline
       uses: ./ci/actions/check-workspace/appcloak
+    - name: Clear dependency access
+      if: ${{ always() }}
+      uses: ./.github/actions/dependency-access
+      with:
+        cleanup: 'true'
   userspace:
     runs-on: ubuntu-latest
     steps:
@@ -77,6 +89,12 @@ jobs:
           != 'refs/heads/test/zram-writeback-20261009' && secrets.SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
+        dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
     - name: Run private build pipeline
       id: pipeline
       uses: ./ci/actions/check-workspace/userspace
+    - name: Clear dependency access
+      if: ${{ always() }}
+      uses: ./.github/actions/dependency-access
+      with:
+        cleanup: 'true'
