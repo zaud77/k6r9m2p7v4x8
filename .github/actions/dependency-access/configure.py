@@ -5,6 +5,8 @@ import re
 import shlex
 import shutil
 import tempfile
+import time
+import urllib.error
 import urllib.request
 
 
@@ -57,6 +59,33 @@ def cleanup(root, temporary):
     shutil.rmtree(root, ignore_errors=False)
 
 
+def host_keys(token):
+    if not token:
+        raise ValueError('Missing GitHub metadata access token')
+    request = urllib.request.Request('https://api.github.com/meta', headers={
+        'User-Agent': 'build-dependency-access',
+        'Accept': 'application/vnd.github+json',
+        'Authorization': 'Bearer ' + token,
+    })
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                public_keys = json.load(response)['ssh_keys']
+            break
+        except urllib.error.HTTPError as error:
+            if error.code not in (429, 500, 502, 503, 504) or attempt == 2:
+                raise
+        except (urllib.error.URLError, TimeoutError):
+            if attempt == 2:
+                raise
+        time.sleep(attempt + 1)
+    if (not isinstance(public_keys, list) or not public_keys
+            or any(not isinstance(value, str) or '\n' in value or '\r' in value
+                   for value in public_keys)):
+        raise ValueError('Invalid SSH host keys')
+    return ''.join('github.com ' + value + '\n' for value in public_keys)
+
+
 def main():
     temporary = Path(os.environ['RUNNER_TEMP'])
     if os.environ.get('DEPENDENCY_ACCESS_CLEANUP') == 'true':
@@ -70,13 +99,7 @@ def main():
     for repository, key in keys.items():
         for value in (repository, *repository.split('/'), *key.splitlines()):
             print('::add-mask::' + value)
-    request = urllib.request.Request('https://api.github.com/meta',
-                                     headers={'User-Agent': 'build-dependency-access'})
-    with urllib.request.urlopen(request, timeout=30) as response:
-        public_keys = json.load(response)['ssh_keys']
-    if not public_keys or any('\n' in value or '\r' in value for value in public_keys):
-        raise ValueError('Invalid SSH host keys')
-    hosts = ''.join('github.com ' + value + '\n' for value in public_keys)
+    hosts = host_keys(os.environ.get('GITHUB_TOKEN'))
     root = Path(tempfile.mkdtemp(prefix='dependency-access-', dir=temporary))
     root.rmdir()
     try:
