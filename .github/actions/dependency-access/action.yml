@@ -16,4 +16,5 @@ runs:
       env:
         DEPENDENCY_SSH_KEYS: ${{ inputs.keys }}
         DEPENDENCY_ACCESS_CLEANUP: ${{ inputs.cleanup }}
+        GITHUB_TOKEN: ${{ github.token }}
       run: python3 "$GITHUB_ACTION_PATH/configure.py"
