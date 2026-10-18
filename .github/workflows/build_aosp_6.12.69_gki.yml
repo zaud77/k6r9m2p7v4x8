@@ -18,6 +18,16 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         required: true
         type: boolean
         default: true
+      zram_writeback_enable:
+        description: 独立回写实验：4 GiB 水位与冷数据判定，不替换原厂 ZRAM
+        required: true
+        type: boolean
+        default: 'false'
+      qpace_enable:
+        description: Canoe QPaCE 硬件压缩实验：硬件匹配并通过压缩解压自检才提供算法
+        required: true
+        type: boolean
+        default: 'false'
       ksu_type:
         description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/KSU(原版)/无内置KSU,默认BakaSU)
         required: true
@@ -112,27 +122,17 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         description: 内核后缀(留空默认,开头别加连字符,勿加空格等影响指令运行的保留字符)
         required: false
         type: string
-        default: android16-6-g46bf6b0c9f8b-4k
+        default: android16-6-g242e1a07f878-ab15865446-4k
       build_date:
         description: 自定义内核构建时间戳(uname -v 显示格式,如:Fri Dec 5 02:05:55 UTC 2025;留空则使用当前UTC时间)
         required: false
         type: string
-        default: ''
+        default: Wed Jul 15 11:18:49 UTC 2026
       blacklist_modules:
-        description: 内核模块加载黑名单（逗号分隔，默认不屏蔽）
+        description: 内核模块加载黑名单(逗号分隔;默认屏蔽oplus_secure_guard_new)
         required: false
         type: string
-        default: ''
-      zram_writeback_enable:
-        description: 独立回写实验：4 GiB 水位与冷数据判定，不替换原厂 ZRAM
-        required: true
-        type: boolean
-        default: 'false'
-      qpace_enable:
-        description: Canoe QPaCE 硬件压缩实验：硬件匹配并通过压缩解压自检才提供算法
-        required: true
-        type: boolean
-        default: 'false'
+        default: oplus_secure_guard_new
 jobs:
   build:
     name: 构建内核 · ${{ inputs.build_request_id || 'manual' }}
@@ -163,6 +163,8 @@ jobs:
         build_request_id: ${{ inputs.build_request_id }}
         device_serial: ${{ inputs.device_serial }}
         self_config: ${{ inputs.self_config }}
+        zram_writeback_enable: ${{ inputs.zram_writeback_enable }}
+        qpace_enable: ${{ inputs.qpace_enable }}
         ksu_type: ${{ inputs.ksu_type }}
         susfs_enable: ${{ inputs.susfs_enable }}
         nomount_enable: ${{ inputs.nomount_enable }}
@@ -181,8 +183,6 @@ jobs:
         kernel_suffix: ${{ inputs.kernel_suffix }}
         build_date: ${{ inputs.build_date }}
         blacklist_modules: ${{ inputs.blacklist_modules }}
-        zram_writeback_enable: ${{ inputs.zram_writeback_enable }}
-        qpace_enable: ${{ inputs.qpace_enable }}
         signing_key: ${{ secrets.NM_BINDING_PRIVATE_KEY }}
     - name: Clear dependency access
       if: ${{ always() }}
