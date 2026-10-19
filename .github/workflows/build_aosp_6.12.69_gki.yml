@@ -28,6 +28,16 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         required: true
         type: boolean
         default: 'false'
+      zram_default_algorithm:
+        description: 默认 ZRAM 算法（仅在勾选对应算法时生效；不可用时保持系统默认）
+        required: true
+        type: choice
+        default: default
+        options:
+        - default
+        - qpace-lz4
+        - qpace
+        - lz4kd
       ksu_type:
         description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/KSU(原版)/无内置KSU,默认BakaSU)
         required: true
@@ -165,6 +175,7 @@ jobs:
         self_config: ${{ inputs.self_config }}
         zram_writeback_enable: ${{ inputs.zram_writeback_enable }}
         qpace_enable: ${{ inputs.qpace_enable }}
+        zram_default_algorithm: ${{ inputs.zram_default_algorithm }}
         ksu_type: ${{ inputs.ksu_type }}
         susfs_enable: ${{ inputs.susfs_enable }}
         nomount_enable: ${{ inputs.nomount_enable }}
