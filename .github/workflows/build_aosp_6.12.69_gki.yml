@@ -38,6 +38,21 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         - qpace-lz4
         - qpace
         - lz4kd
+      zram_size_gib:
+        description: ZRAM 逻辑容量（GiB；default 保持系统默认，与回写容量无关）
+        required: true
+        type: choice
+        default: default
+        options:
+        - default
+        - '4'
+        - '6'
+        - '8'
+        - '10'
+        - '12'
+        - '16'
+        - '24'
+        - '32'
       ksu_type:
         description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/KSU(原版)/无内置KSU,默认BakaSU)
         required: true
@@ -176,6 +191,7 @@ jobs:
         zram_writeback_enable: ${{ inputs.zram_writeback_enable }}
         qpace_enable: ${{ inputs.qpace_enable }}
         zram_default_algorithm: ${{ inputs.zram_default_algorithm }}
+        zram_size_gib: ${{ inputs.zram_size_gib }}
         ksu_type: ${{ inputs.ksu_type }}
         susfs_enable: ${{ inputs.susfs_enable }}
         nomount_enable: ${{ inputs.nomount_enable }}
