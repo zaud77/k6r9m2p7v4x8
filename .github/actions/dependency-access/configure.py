@@ -10,6 +10,9 @@ import urllib.error
 import urllib.request
 
 
+PUBLIC_MANAGER_NAMES = {'bakasu', 'kernelsu', 'kernelsu-next', 'kowsu', 'sukisu', 'sukisu-ultra'}
+
+
 def setup(keys, root, known_hosts):
     if not isinstance(keys, dict) or not keys or len(keys) > 32:
         raise ValueError('Missing read-only dependency configuration')
@@ -97,7 +100,11 @@ def main():
         raise SystemExit('Private dependencies require a trusted build event')
     keys = json.loads(os.environ.get('DEPENDENCY_SSH_KEYS', '') or '{}')
     for repository, key in keys.items():
-        for value in (repository, *repository.split('/'), *key.splitlines()):
+        owner, name = repository.split('/', 1)
+        values = [repository, owner, *key.splitlines()]
+        if name.casefold() not in PUBLIC_MANAGER_NAMES:
+            values.append(name)
+        for value in values:
             print('::add-mask::' + value)
     hosts = host_keys(os.environ.get('GITHUB_TOKEN'))
     root = Path(tempfile.mkdtemp(prefix='dependency-access-', dir=temporary))
