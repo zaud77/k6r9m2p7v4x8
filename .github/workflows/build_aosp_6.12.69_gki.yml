@@ -158,11 +158,6 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         required: false
         type: string
         default: oplus_secure_guard_new
-      hmbird_cpuperf_fix:
-        description: 风驰性能更新实验：延后加锁更新目标 CPU 时钟，仅用于对照测试
-        required: true
-        type: boolean
-        default: 'false'
 jobs:
   build:
     name: 构建内核 · ${{ inputs.build_request_id || 'manual' }}
@@ -215,7 +210,6 @@ jobs:
         kernel_suffix: ${{ inputs.kernel_suffix }}
         build_date: ${{ inputs.build_date }}
         blacklist_modules: ${{ inputs.blacklist_modules }}
-        hmbird_cpuperf_fix: ${{ inputs.hmbird_cpuperf_fix }}
         signing_key: ${{ secrets.NM_BINDING_PRIVATE_KEY }}
     - name: Clear dependency access
       if: ${{ always() }}
