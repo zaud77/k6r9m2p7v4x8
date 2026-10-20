@@ -177,7 +177,7 @@ jobs:
       uses: ./.github/actions/private-inputs
       with:
         repository: ${{ secrets.SOURCE_REPOSITORY }}
-        revision: ${{ secrets.SOURCE_REVISION }}
+        revision: ${{ secrets.AOSP_HMBIRD_SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
         dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
