@@ -139,6 +139,7 @@ jobs:
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
         dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
+        privacy-key: ${{ secrets.BUILD_PRIVACY_KEY }}
     - name: Run private build pipeline
       id: pipeline
       uses: ./ci/actions/build_android17_oppo_findx9_hmbird/build
@@ -164,6 +165,14 @@ jobs:
         build_date: ${{ inputs.build_date }}
         blacklist_modules: ${{ inputs.blacklist_modules }}
         signing_key: ${{ secrets.NM_BINDING_PRIVATE_KEY }}
+    - name: Save encrypted build diagnostics
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: build-diagnostics-${{ github.job }}-${{ strategy.job-index || 0 }}
+        path: ${{ runner.temp }}/build-private/logs/*.enc
+        if-no-files-found: ignore
+        retention-days: 7
     - name: Clear dependency access
       if: ${{ always() }}
       uses: ./.github/actions/dependency-access

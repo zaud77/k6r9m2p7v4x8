@@ -10,6 +10,9 @@ inputs:
   key:
     required: true
     description: Read-only access key
+  privacy-key:
+    required: true
+    description: Build data encryption key
   dependency-keys:
     required: true
     description: Read-only dependency access
@@ -35,7 +38,8 @@ runs:
         event = os.environ['GITHUB_EVENT_NAME']
         main_run = ref == 'refs/heads/main' and event in ('push', 'workflow_dispatch')
         test_run = ref == 'refs/heads/test/zram-writeback-20261009' and event == 'workflow_dispatch'
-        if not (main_run or test_run):
+        hmbird_run = ref == 'refs/heads/test/aosp-hmbird-oneplus15-20261020' and event == 'workflow_dispatch'
+        if not (main_run or test_run or hmbird_run):
             raise SystemExit('Build inputs are available only to trusted build runs')
         repo = os.environ['INPUT_REPOSITORY']
         revision = os.environ['INPUT_REVISION']
@@ -114,3 +118,19 @@ runs:
                     for name, value in settings[workflow].items():
                         output.write(name + '=' + value + '\n')
         PY
+    - name: Initialize protected build context
+      shell: bash
+      env:
+        BUILD_PRIVACY_KEY: ${{ inputs.privacy-key }}
+      run: |
+        set -euo pipefail
+        if ! python3 -c 'import cryptography' >/dev/null 2>&1; then
+          if [ "$(id -u)" = 0 ]; then
+            apt-get update -qq >/dev/null 2>&1
+            apt-get install -y -qq python3-cryptography >/dev/null 2>&1
+          else
+            sudo apt-get update -qq >/dev/null 2>&1
+            sudo apt-get install -y -qq python3-cryptography >/dev/null 2>&1
+          fi
+        fi
+        python3 "$GITHUB_WORKSPACE/ci/run_pipeline_step.py" --privacy-init
