@@ -74,6 +74,7 @@ runs:
         show-progress: false
         submodules: ${{ inputs.submodules }}
     - name: Configure dependency access
+      if: ${{ inputs.dependency-keys != '{}' || !contains(github.workflow_ref, '/.github/workflows/build-diagnostics.yml@') }}
       uses: ./.github/actions/dependency-access
       with:
         keys: ${{ inputs.dependency-keys }}
