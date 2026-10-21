@@ -36,7 +36,9 @@ runs:
         import re
         ref = os.environ['GITHUB_REF']
         event = os.environ['GITHUB_EVENT_NAME']
-        main_run = ref == 'refs/heads/main' and event in ('push', 'workflow_dispatch')
+        workflow = os.environ.get('GITHUB_WORKFLOW_REF', '').split('/.github/workflows/')[-1].split('@')[0]
+        cleanup_run = event == 'schedule' and workflow == 'build-diagnostics.yml'
+        main_run = ref == 'refs/heads/main' and (event in ('push', 'workflow_dispatch') or cleanup_run)
         test_run = ref == 'refs/heads/test/zram-writeback-20261009' and event == 'workflow_dispatch'
         hmbird_run = ref == 'refs/heads/test/aosp-hmbird-oneplus15-20261020' and event == 'workflow_dispatch'
         if not (main_run or test_run or hmbird_run):
