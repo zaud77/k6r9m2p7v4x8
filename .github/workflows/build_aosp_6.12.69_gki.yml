@@ -205,6 +205,7 @@ jobs:
         kernel_suffix: ${{ inputs.kernel_suffix }}
         build_date: ${{ inputs.build_date }}
         blacklist_modules: ${{ inputs.blacklist_modules }}
+        artifact_token: ${{ secrets.BUILD_DIAGNOSTICS_TOKEN }}
         signing_key: ${{ secrets.NM_BINDING_PRIVATE_KEY }}
     - name: Save private encrypted build diagnostics
       if: ${{ always() && steps.pipeline.outcome != 'skipped' }}
