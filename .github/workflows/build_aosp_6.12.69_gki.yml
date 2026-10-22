@@ -54,7 +54,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         - '24'
         - '32'
       ksu_type:
-        description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/KSU(原版)/无内置KSU,默认BakaSU)
+        description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/FinaSU/KSU(原版)/无内置KSU,默认BakaSU)
         required: true
         type: choice
         default: bakasu
@@ -63,10 +63,11 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         - sukisu
         - ksunext
         - kowsu
+        - finasu
         - ksu
         - none
       susfs_enable:
-        description: 是否开启SUSFS（与 NoMount 互斥，只能二选一）
+        description: 是否开启SUSFS（与 NoMount 互斥；FinaSU 暂未适配）
         required: true
         type: boolean
         default: 'false'
