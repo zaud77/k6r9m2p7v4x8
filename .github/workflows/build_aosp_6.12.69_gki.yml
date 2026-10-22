@@ -72,7 +72,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         - ksu
         - none
       susfs_enable:
-        description: 是否开启SUSFS（与 NoMount 互斥；FinaSU 暂未适配）
+        description: 是否开启SUSFS（与 NoMount 互斥，只能二选一）
         required: true
         type: boolean
         default: 'false'
