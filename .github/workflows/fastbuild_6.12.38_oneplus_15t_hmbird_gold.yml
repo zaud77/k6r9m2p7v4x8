@@ -14,7 +14,7 @@ run-name: 6.12.38 一加15T 金标风驰 · ${{ inputs.device_serial || '手动�
         type: string
         default: 3B15A800Y5D00000
       ksu_type:
-        description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/KSU(原版)/无内置KSU,默认BakaSU)
+        description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/FinaSU/KSU(原版)/无内置KSU,默认BakaSU)
         required: true
         type: choice
         default: bakasu
@@ -23,10 +23,11 @@ run-name: 6.12.38 一加15T 金标风驰 · ${{ inputs.device_serial || '手动�
         - sukisu
         - ksunext
         - kowsu
+        - finasu
         - ksu
         - none
       susfs_enable:
-        description: 是否开启SUSFS（与 NoMount 互斥，只能二选一）
+        description: 是否开启SUSFS（与 NoMount 互斥；FinaSU 暂未适配）
         required: true
         type: boolean
         default: 'false'
