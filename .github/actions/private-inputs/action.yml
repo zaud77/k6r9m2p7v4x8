@@ -37,8 +37,7 @@ runs:
         ref = os.environ['GITHUB_REF']
         event = os.environ['GITHUB_EVENT_NAME']
         main_run = ref == 'refs/heads/main' and event in ('push', 'workflow_dispatch')
-        hmbird_run = ref == 'refs/heads/test/aosp-hmbird-oneplus15-20261020' and event == 'workflow_dispatch'
-        if not (main_run or hmbird_run):
+        if not main_run:
             raise SystemExit('Build inputs are available only to trusted build runs')
         repo = os.environ['INPUT_REPOSITORY']
         revision = os.environ['INPUT_REVISION']
