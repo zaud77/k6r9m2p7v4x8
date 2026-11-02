@@ -1,0 +1,32 @@
+name: Clean expired Actions history
+'on':
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Preview without deleting
+        type: boolean
+        default: true
+  schedule:
+  - cron: 43 4 */3 * *
+permissions:
+  contents: read
+  actions: write
+concurrency:
+  group: public-actions-cleanup
+  cancel-in-progress: false
+jobs:
+  cleanup:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      with:
+        persist-credentials: false
+        submodules: false
+    - name: Remove completed runs and artifacts older than three days
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        CLEANUP_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+      run: python3 "$GITHUB_WORKSPACE/.github/scripts/cleanup_actions.py"
