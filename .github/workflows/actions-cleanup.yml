@@ -2,6 +2,14 @@ name: Clean expired Actions history
 'on':
   workflow_dispatch:
     inputs:
+      clear_history:
+        description: Clear completed history once
+        type: boolean
+        default: false
+      keep_run_ids:
+        description: Comma-separated current build IDs to retain
+        type: string
+        default: ''
       dry_run:
         description: Preview without deleting
         type: boolean
@@ -29,4 +37,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
         CLEANUP_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+        CLEANUP_RETENTION_DAYS: ${{ github.event_name == 'workflow_dispatch' && inputs.clear_history && '0' || '3' }}
+        CLEANUP_KEEP_RUN_IDS: ${{ inputs.keep_run_ids || '' }}
       run: python3 "$GITHUB_WORKSPACE/.github/scripts/cleanup_actions.py"

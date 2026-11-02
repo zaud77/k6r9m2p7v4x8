@@ -55,9 +55,14 @@ def old(item, cutoff):
 
 
 def cleanup(environment, client=None, current=None):
+    days = environment.get('CLEANUP_RETENTION_DAYS', '3')
+    keep = environment.get('CLEANUP_KEEP_RUN_IDS', '')
+    if days not in ('0', '3') or (keep and not re.fullmatch(r'[1-9][0-9]*(?:,[1-9][0-9]*)*', keep)):
+        raise ValueError('Invalid retention options')
     client = client or GitHub(environment)
-    cutoff = (current or datetime.now(timezone.utc)) - timedelta(days=3)
+    cutoff = (current or datetime.now(timezone.utc)) - timedelta(days=int(days))
     own = int(environment['GITHUB_RUN_ID'])
+    protected = {own, *(int(value) for value in keep.split(',') if value)}
     dry = environment.get('CLEANUP_DRY_RUN', 'false') == 'true'
     runs = list(client.items(client.root + '/actions/runs', 'workflow_runs'))
     artifacts = list(client.items(client.root + '/actions/artifacts', 'artifacts'))
@@ -67,7 +72,7 @@ def cleanup(environment, client=None, current=None):
             continue
         run_id = (artifact.get('workflow_run') or {}).get('id')
         if run_id is not None:
-            if int(run_id) == own:
+            if int(run_id) in protected:
                 continue
             run = client.request(client.root + '/actions/runs/' + str(int(run_id)))
             if run is not None and (run.get('status') != 'completed' or not old(run, cutoff)):
@@ -77,7 +82,7 @@ def cleanup(environment, client=None, current=None):
         counts['artifacts'] += 1
     for previous in runs:
         identity = int(previous['id'])
-        if identity == own or previous.get('status') != 'completed' or not old(previous, cutoff):
+        if identity in protected or previous.get('status') != 'completed' or not old(previous, cutoff):
             continue
         path = client.root + '/actions/runs/' + str(identity)
         run = client.request(path)
