@@ -19,7 +19,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         type: boolean
         default: true
       hmbird_cpuperf_fix:
-        description: 风驰 CPUPerf 时钟修复（默认关闭）
+        description: cpuperf时钟修复（默认关闭）
         required: true
         type: boolean
         default: 'false'
