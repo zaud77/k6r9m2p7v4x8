@@ -47,7 +47,7 @@ run-name: 6.12.38 Ace6T 金标风驰 · ${{ inputs.device_serial || '手动构�
         type: boolean
         default: 'true'
       lz4kd_enable:
-        description: 是否安装 LZ4KD 补丁(若已开启lz4+zstd补丁则可不开启)
+        description: 内置 LZ4KD / LZ4KD_N（含 SDDC），保持默认算法不变
         required: true
         type: boolean
         default: 'false'
