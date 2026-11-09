@@ -93,7 +93,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         type: boolean
         default: 'true'
       lz4kd_enable:
-        description: 内置 LZ4KD / LZ4KD_N 编解码器，保留原厂 ZRAM 与默认算法；SDDC 仅设备版支持
+        description: 内置 LZ4KD / LZ4KD_N；选择 lz4kd_n 时在已适配驱动上启用 SDDC，保留原厂 ZRAM
         required: true
         type: boolean
         default: 'false'
@@ -179,7 +179,7 @@ jobs:
       uses: ./.github/actions/private-inputs
       with:
         repository: ${{ secrets.SOURCE_REPOSITORY }}
-        revision: ${{ secrets.SOURCE_REVISION }}
+        revision: ${{ secrets.AOSP_SDDC_TEST_SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
         dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
