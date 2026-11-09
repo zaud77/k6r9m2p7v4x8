@@ -37,11 +37,7 @@ runs:
         ref = os.environ['GITHUB_REF']
         event = os.environ['GITHUB_EVENT_NAME']
         main_run = ref == 'refs/heads/main' and event in ('push', 'workflow_dispatch')
-        test_run = (ref == 'refs/heads/test/aosp-sddc-20261109' and event == 'workflow_dispatch'
-                    and os.environ.get('GITHUB_REPOSITORY') == 'zaud77/k6r9m2p7v4x8'
-                    and os.environ.get('GITHUB_WORKFLOW_REF') ==
-                    'zaud77/k6r9m2p7v4x8/.github/workflows/build_aosp_6.12.69_gki.yml@refs/heads/test/aosp-sddc-20261109')
-        if not (main_run or test_run):
+        if not main_run:
             raise SystemExit('Build inputs are available only to trusted build runs')
         repo = os.environ['INPUT_REPOSITORY']
         revision = os.environ['INPUT_REVISION']
