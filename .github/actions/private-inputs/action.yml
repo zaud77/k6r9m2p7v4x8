@@ -37,11 +37,7 @@ runs:
         ref = os.environ['GITHUB_REF']
         event = os.environ['GITHUB_EVENT_NAME']
         main_run = ref == 'refs/heads/main' and event in ('push', 'workflow_dispatch')
-        workflow = os.environ['GITHUB_WORKFLOW_REF'].split('/.github/workflows/', 1)[1].split('@', 1)[0]
-        compression_test = (ref == 'refs/heads/test/lz4kd-n-20261109' and event == 'workflow_dispatch'
-                            and workflow in ('fastbuild_6.12.23_oneplus_15_hmbird_gold.yml',
-                                             'build_aosp_6.12.69_gki.yml'))
-        if not (main_run or compression_test):
+        if not main_run:
             raise SystemExit('Build inputs are available only to trusted build runs')
         repo = os.environ['INPUT_REPOSITORY']
         revision = os.environ['INPUT_REVISION']
