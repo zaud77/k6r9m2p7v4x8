@@ -154,7 +154,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         description: 自定义内核构建时间戳(uname -v 显示格式,如:Fri Dec 5 02:05:55 UTC 2025;留空则使用当前UTC时间)
         required: false
         type: string
-        default: Wed Jul 15 11:18:49 UTC 2026
+        default: Thu Sep 17 08:57:15 UTC 2026
       blacklist_modules:
         description: 内核模块加载黑名单(逗号分隔;默认屏蔽oplus_secure_guard_new)
         required: false
