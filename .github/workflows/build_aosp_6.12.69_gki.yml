@@ -149,7 +149,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         description: 内核后缀(留空默认,开头别加连字符,勿加空格等影响指令运行的保留字符)
         required: false
         type: string
-        default: android16-6-g242e1a07f878-ab15865446-4k
+        default: android16-6-g5fd39602326e-ab16372235-4k
       build_date:
         description: 自定义内核构建时间戳(uname -v 显示格式,如:Fri Dec 5 02:05:55 UTC 2025;留空则使用当前UTC时间)
         required: false
