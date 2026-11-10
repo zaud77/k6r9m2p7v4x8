@@ -179,7 +179,7 @@ jobs:
       uses: ./.github/actions/private-inputs
       with:
         repository: ${{ secrets.SOURCE_REPOSITORY }}
-        revision: ${{ secrets.AOSP_SDDC_GAIN_SOURCE_REVISION }}
+        revision: ${{ secrets.SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
         dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
