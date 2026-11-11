@@ -132,6 +132,20 @@ def apt(arguments, options=(), seconds=150):
         return False
 
 
+@contextlib.contextmanager
+def package_directory():
+    with tempfile.TemporaryDirectory(prefix='build-apt-') as directory:
+        root = Path(directory)
+        try:
+            yield root
+        finally:
+            uid = getattr(os, 'geteuid', lambda: 0)()
+            if uid != 0:
+                assert root.resolve().parent == Path(tempfile.gettempdir()).resolve() and root.name.startswith('build-apt-')
+                gid = getattr(os, 'getegid', lambda: uid)()
+                subprocess.run(['sudo', '-n', 'chown', '-R', '--', str(uid) + ':' + str(gid), str(root)], check=True, timeout=15)
+
+
 def install(packages):
     if not packages or any(not re.fullmatch(r'[a-z0-9][a-z0-9+.-]*(?::[a-z0-9]+)?', p) for p in packages):
         raise ValueError('Invalid build package list')
@@ -146,8 +160,7 @@ def install(packages):
     architecture = subprocess.check_output(['dpkg', '--print-architecture'], text=True).strip()
     routes = [False, True] if release.get('ID') == 'ubuntu' else [False]
     for archived in routes:
-        with tempfile.TemporaryDirectory(prefix='build-apt-') as directory, proxy() as address:
-            root = Path(directory)
+        with package_directory() as root, proxy() as address:
             root.chmod(0o755)
             lists = root / 'lists'
             (lists / 'partial').mkdir(parents=True)
