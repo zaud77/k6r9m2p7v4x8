@@ -42,7 +42,7 @@ run-name: 6.12.23 Find X9 金标风驰 · ${{ inputs.device_serial || '手动构
         type: boolean
         default: 'false'
       lz4_enable:
-        description: 是否安装 lz4 1.10.0+zstd 1.5.7 补丁
+        description: 是否安装 lz4 1.11.1+zstd 1.5.7 补丁
         required: true
         type: boolean
         default: 'true'
