@@ -37,7 +37,8 @@ runs:
         ref = os.environ['GITHUB_REF']
         event = os.environ['GITHUB_EVENT_NAME']
         main_run = ref == 'refs/heads/main' and event in ('push', 'workflow_dispatch')
-        if not main_run:
+        trial_run = ref == 'refs/heads/trial/kowsu-aosp-6.12.69-20261117' and event == 'workflow_dispatch'
+        if not (main_run or trial_run):
             raise SystemExit('Build inputs are available only to trusted build runs')
         repo = os.environ['INPUT_REPOSITORY']
         revision = os.environ['INPUT_REVISION']

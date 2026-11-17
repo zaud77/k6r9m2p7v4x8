@@ -1,5 +1,5 @@
-name: 6.12.69 AOSP GKI (Android 17 / KMI 6)
-run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
+name: KowSU 6.12.69 AOSP Trial
+run-name: KowSU 6.12.69 AOSP Trial · ${{ inputs.build_request_id }}
 'on':
   workflow_dispatch:
     inputs:
@@ -9,15 +9,15 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         type: string
         default: manual
       device_serial:
-        description: 绑定设备序列号（留空时使用默认自用序列号；写入内核并在启动后校验）
+        description: Unused in this unbound trial; leave empty
         required: false
         type: string
-        default: 3B15A800Y5D00000
+        default: ''
       self_config:
         description: 自用配置
         required: true
         type: boolean
-        default: true
+        default: 'false'
       hmbird_cpuperf_fix:
         description: cpuperf时钟修复（默认关闭）
         required: true
@@ -63,7 +63,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         description: KernelSU分支(BakaSU/SukiSU Ultra/KernelSU Next/KowSU/FinaSU/KSU(原版)/无内置KSU,默认BakaSU)
         required: true
         type: choice
-        default: bakasu
+        default: kowsu
         options:
         - bakasu
         - sukisu
@@ -91,7 +91,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         description: 是否安装 lz4 1.11.1+zstd 1.5.7 补丁
         required: true
         type: boolean
-        default: 'true'
+        default: 'false'
       lz4kd_enable:
         description: 内置 LZ4KD / LZ4KD_N；选择 lz4kd_n 时在已适配驱动上启用 SDDC，保留原厂 ZRAM
         required: true
@@ -101,12 +101,12 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         description: 是否添加Unicode不可见字码点绕过读取漏洞修复？
         type: boolean
         required: true
-        default: 'true'
+        default: 'false'
       bbr_enable:
         description: BBR3 拥塞控制：false 关闭，true 加入算法，default 加入并设为默认；包含 TCP Brutal 2.0.1
         required: true
         type: choice
-        default: default
+        default: 'false'
         options:
         - 'false'
         - 'true'
@@ -129,17 +129,17 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         description: 网络增强：IPSet、IPv6 NAT、FQ / FQ-CoDel / CAKE / PIE 支持，保留系统默认队列
         required: true
         type: boolean
-        default: 'true'
+        default: 'false'
       adios_enable:
         description: 是否启用ADIOS IO调度器支持(提升IO读写性能)
         required: true
         type: boolean
-        default: 'true'
+        default: 'false'
       rekernel_enable:
         description: 是否启用Re-Kernel支持(与Freezer/NoActive等软件配合, 提升应用冻结能力)
         required: true
         type: boolean
-        default: 'true'
+        default: 'false'
       baseband_guard:
         description: 是否开启内核级基带保护(阻止一切对非用户分区的写入，有效防止格机)
         required: true
@@ -159,7 +159,7 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
         description: 内核模块加载黑名单(逗号分隔;默认屏蔽oplus_secure_guard_new)
         required: false
         type: string
-        default: oplus_secure_guard_new
+        default: ''
 jobs:
   build:
     name: 构建内核 · ${{ inputs.build_request_id || 'manual' }}
@@ -214,7 +214,6 @@ jobs:
         build_date: ${{ inputs.build_date }}
         blacklist_modules: ${{ inputs.blacklist_modules }}
         artifact_token: ${{ secrets.BUILD_DIAGNOSTICS_TOKEN }}
-        signing_key: ${{ secrets.NM_BINDING_PRIVATE_KEY }}
     - name: Save private encrypted build diagnostics
       if: ${{ always() && steps.pipeline.outcome != 'skipped' }}
       shell: bash
@@ -229,3 +228,4 @@ jobs:
       with:
         cleanup: 'true'
     timeout-minutes: 180
+    environment: kowsu-trial-20261117
