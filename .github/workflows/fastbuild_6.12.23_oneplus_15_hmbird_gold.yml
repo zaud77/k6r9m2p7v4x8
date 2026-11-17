@@ -80,7 +80,7 @@ run-name: 6.12.23 一加15 金标风驰 · ${{ inputs.device_serial || '手动�
         - standard
         - extend
       ntsync_enable:
-        description: 启用 NTSYNC 驱动（NT 同步原语，独立于 DroidSpaces，默认关闭）
+        description: 启用 NTSYNC 驱动（与 DroidSpaces 互斥，默认关闭）
         required: true
         type: boolean
         default: 'false'
