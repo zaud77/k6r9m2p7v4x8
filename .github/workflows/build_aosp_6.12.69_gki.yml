@@ -163,8 +163,8 @@ run-name: 6.12.69 AOSP GKI ZRAM validation · ${{ inputs.build_request_id }}
 jobs:
   build:
     name: 构建内核 · ${{ inputs.build_request_id || 'manual' }}
-    if: github.ref == 'refs/heads/fix/zram-quality-20261118'
-    environment: zram-quality-20261118
+    if: github.ref == 'refs/heads/fix/zram-ratio-plk110-20261119'
+    environment: zram-ratio-plk110-20261119
     runs-on: ubuntu-latest
     outputs:
       ksuver: ${{ steps.pipeline.outputs.ksuver }}
@@ -181,7 +181,7 @@ jobs:
       uses: ./.github/actions/private-inputs
       with:
         repository: ${{ secrets.SOURCE_REPOSITORY }}
-        revision: ${{ secrets.ZRAM_QUALITY_SOURCE_REVISION }}
+        revision: ${{ secrets.ZRAM_RATIO_SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
         dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
