@@ -1,5 +1,5 @@
 name: 6.12.69 AOSP GKI (Android 17 / KMI 6)
-run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
+run-name: 6.12.69 AOSP GKI Crystal ZRAM · ${{ inputs.build_request_id }}
 'on':
   workflow_dispatch:
     inputs:
@@ -163,6 +163,8 @@ run-name: 6.12.69 AOSP GKI · ${{ inputs.device_serial || 'manual' }}
 jobs:
   build:
     name: 构建内核 · ${{ inputs.build_request_id || 'manual' }}
+    if: github.ref == 'refs/heads/trial/crystal-zram-aosp-6.12.69'
+    environment: crystal-zram-aosp-6-12-69
     runs-on: ubuntu-latest
     outputs:
       ksuver: ${{ steps.pipeline.outputs.ksuver }}
@@ -179,7 +181,7 @@ jobs:
       uses: ./.github/actions/private-inputs
       with:
         repository: ${{ secrets.SOURCE_REPOSITORY }}
-        revision: ${{ secrets.SOURCE_REVISION }}
+        revision: ${{ secrets.CRYSTAL_ZRAM_SOURCE_REVISION }}
         key: ${{ secrets.SOURCE_READ_KEY }}
         submodules: 'false'
         dependency-keys: ${{ secrets.DEPENDENCY_SSH_KEYS }}
